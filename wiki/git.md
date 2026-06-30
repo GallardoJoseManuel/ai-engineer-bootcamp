@@ -1,4 +1,4 @@
-# What is git?
+# GIT
 
 ## What is it?
 Git is a distributed version control system. It allows us to keep track of our project recording every change made to our files over time, who made it, and why, creating a full, navigable history of the entire codebase. Every developer has a complete copy of the repository on their own machine, including the full history. This means you can work offline, commit changes locally, and only sync with others when you're ready.
@@ -29,6 +29,13 @@ git add does not create a commit. It only tells Git which changes should be incl
 Saves a permanent snapshot of everything in the staging area into your local repository's history.
 A good commit should represent one logical unit of work a bug fix, a new feature, a refactor with a clear message explaining why the change was made, not just what changed.
 A commit is a snapshot, not a backup.
+#### Conventional Commits (git commit -m "Modification(spacework affected): message)
+feat - Add a new functionality
+fix - Fixing errors
+perf - Performance improvements
+refactor - Refactoring names
+docs - Updates in any documentation
+test - When adding unit tests
 
 ### git push
 Uploads your local commits to a remote repository, making your work visible and shareable with others. Until you push, all your commits exist only on your machine. Under the hood, Git compares your local branch with the remote branch and sends only the difference the commits the remote doesn't have yet making it efficient even on large projects.
@@ -50,6 +57,18 @@ Takes the history of one branch and integrates it into another. Unlike rebase, i
 It's the standard way to bring a finished feature branch back into main (or any other target branch).
 
 ## Common mistakes
+### 403 Forbidden
+
+**Cause**
+
+Git Credential Manager is using credentials from another GitHub account.
+
+**Solution**
+
+1. Open Windows Credential Manager.
+2. Remove the stored GitHub credential.
+3. Run `git push` again.
+4. Sign in with the correct GitHub account.
 
 ## Interview questions
 
