@@ -36,6 +36,7 @@ perf - Performance improvements
 refactor - Refactoring names
 docs - Updates in any documentation
 test - When adding unit tests
+chore - maintenance project modification which does not add any functionality or fix a bug
 
 ### git push
 Uploads your local commits to a remote repository, making your work visible and shareable with others. Until you push, all your commits exist only on your machine. Under the hood, Git compares your local branch with the remote branch and sends only the difference the commits the remote doesn't have yet making it efficient even on large projects.
