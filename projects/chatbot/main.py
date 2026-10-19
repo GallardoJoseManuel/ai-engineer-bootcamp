@@ -116,6 +116,31 @@ def show_help():
     print("- exit: End the conversation")
 
 
+# HANDLE SPECIAL COMMANDS
+
+def handle_command(user_message, history):
+    command = user_message.lower().strip()
+
+    if command == "help":
+        show_help()
+        return True, history
+
+    elif command == "history":
+        show_history(history)
+        return True, history
+
+    elif command == "clear history":
+        history = clear_history()
+        return True, history
+
+    elif command == "exit":
+        print("PyBot: See you soon!")
+        return True, history
+
+    return False, history
+
+
+
 
 
 # SEARCH FOR PHRASES IN MESSAGES
@@ -181,42 +206,36 @@ def main():
 
     print("PyBot: Hello! I'm PyBot.")
     print("PyBot: Type 'exit' to end the conversation.")
-    
+        
     while True:
-        user_message = input("You: ")
-        if user_message.lower().strip() == "exit":
-            print("PyBot: See you soon!")
-            break
+        user_message = input("You: ").strip()
 
-        if user_message.lower().strip() == "history":
-            show_history(history)
-            continue                # Skip the rest of the loop and prompt for input again
+        is_command, history = handle_command(user_message, history)
 
-        if user_message.lower().strip() == "help":
-            show_help()
+        if is_command:
+            if user_message.lower().strip() == "exit":
+                break
             continue
 
-        if user_message.lower().strip() == "clear history":
-            history = clear_history()
-            continue
+        timestamp = datetime.now().isoformat(timespec="seconds")
 
         history.append({
             "role": "user",
             "message": user_message,
-            "timestamp": datetime.now().isoformat(timespec="seconds")
+            "timestamp": timestamp,
         })
 
         response = generate_response(user_message, memory)
-        
+        print(f"PyBot: {response}")
+
         history.append({
             "role": "assistant",
             "message": response,
-            "timestamp": datetime.now().isoformat(timespec="seconds")
+            "timestamp": datetime.now().isoformat(timespec="seconds"),
         })
 
         save_history(history)
 
-        print(f"PyBot: {response}")     
 
 
 if __name__ == "__main__":
