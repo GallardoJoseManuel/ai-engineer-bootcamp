@@ -219,3 +219,78 @@ def test_api_connection_error(monkeypatch):
     assert result == (
         "Could not connect to the AI service. Check your connection."
     )
+
+
+def test_stream_llm_response_success(monkeypatch):
+    class FakeEvent:
+        def __init__(self, event_type, delta=""):
+            self.type = event_type
+            self.delta = delta
+
+    class FakeStream:
+        def __enter__(self):
+            return iter([
+                FakeEvent("response.output_text.delta", "Hello "),
+                FakeEvent("response.output_text.delta", "there!"),
+                FakeEvent("response.completed"),
+            ])
+
+        def __exit__(self, *args):
+            pass
+
+    class FakeResponses:
+        def create(self, **kwargs):
+            assert kwargs["stream"] is True
+            return FakeStream()
+
+    class FakeClient:
+        def __init__(self, **kwargs):
+            self.responses = FakeResponses()
+
+    monkeypatch.setenv("OPENAI_API_KEY", "test-key")
+    monkeypatch.setattr(llm_client, "OpenAI", FakeClient)
+
+    result = "".join(
+        llm_client.stream_llm_response("Hello")
+    )
+
+    assert result == "Hello there!"
+
+
+def test_stream_llm_response_missing_api_key(monkeypatch):
+    monkeypatch.delenv("OPENAI_API_KEY", raising=False)
+
+    result = list(
+        llm_client.stream_llm_response("Hello")
+    )
+
+    assert result == ["OPENAI_API_KEY is not configured."]
+
+
+def test_stream_llm_response_connection_error(monkeypatch):
+    import httpx
+    from openai import APIConnectionError
+
+    class FakeResponses:
+        def create(self, **kwargs):
+            raise APIConnectionError(
+                message="Connection failed",
+                request=httpx.Request(
+                    "POST", "https://api.openai.com/v1/responses"
+                ),
+            )
+
+    class FakeClient:
+        def __init__(self, **kwargs):
+            self.responses = FakeResponses()
+
+    monkeypatch.setenv("OPENAI_API_KEY", "test-key")
+    monkeypatch.setattr(llm_client, "OpenAI", FakeClient)
+
+    result = list(
+        llm_client.stream_llm_response("Hello")
+    )
+
+    assert result == [
+        "\nCould not connect to the AI service. Check your connection."
+    ]
