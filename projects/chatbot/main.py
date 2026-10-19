@@ -107,6 +107,14 @@ def show_history(history):
             print(f"{speaker}: {entry['message']}")
 
 
+# DISPLAY AVAILABLE COMMANDS
+def show_help():
+    print("PyBot: Available commands:")
+    print("- help: Show available commands")
+    print("- history: Show conversation history")
+    print("- clear history: Clear conversation history")
+    print("- exit: End the conversation")
+
 
 
 
@@ -184,7 +192,10 @@ def main():
             show_history(history)
             continue                # Skip the rest of the loop and prompt for input again
 
-        
+        if user_message.lower().strip() == "help":
+            show_help()
+            continue
+
         if user_message.lower().strip() == "clear history":
             history = clear_history()
             continue
