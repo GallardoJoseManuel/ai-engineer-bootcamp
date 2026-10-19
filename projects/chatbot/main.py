@@ -28,7 +28,6 @@ INTENTS = {
 
 
 # HANDLE JSON MEMORY FILE
-
 def load_memory():
     if not os.path.exists("memory.json"):
         return {}
@@ -41,7 +40,6 @@ def load_memory():
 
 
 # CONVERT MEMORY DICTIONARY TO JSON AND SAVE TO FILE
-
 def save_memory(memory):
     try:
         with open("memory.json", "w", encoding="utf-8") as file:
@@ -50,15 +48,61 @@ def save_memory(memory):
         print("PyBot: Warning: Could not save memory.")
 
 
-# SEARCH FOR PHRASES IN MESSAGES
 
+# LOAD CONVERSATION HISTORY FROM JSON
+def load_history():
+    if not os.path.exists("history.json"):
+        return []
+
+    try:
+        with open("history.json", "r", encoding="utf-8") as file:
+            history = json.load(file)
+
+        if isinstance(history, list):
+            return history
+
+        return []
+
+    except (json.JSONDecodeError, OSError):
+        return []
+
+
+# SAVE CONVERSATION HISTORY TO JSON
+def save_history(history):
+    try:
+        with open("history.json", "w", encoding="utf-8") as file:
+            json.dump(history, file, indent=4, ensure_ascii=False)
+    except OSError:
+        print("PyBot: Warning: Could not save conversation history.")
+
+
+
+# DISPLAY CONVERSATION HISTORY
+def show_history(history):
+    if not history:
+        print("PyBot: No conversation history yet.")
+        return
+
+    print("PyBot: Conversation history:")
+
+    for entry in history:
+        if entry["role"] == "user":
+            speaker = "You"
+        else:
+            speaker = "PyBot"
+
+        print(f"{speaker}: {entry['message']}")
+
+
+
+
+# SEARCH FOR PHRASES IN MESSAGES
 def contains_phrase(message, phrase):
     pattern = rf"\b{re.escape(phrase)}\b"
     return re.search(pattern, message) is not None
 
 
 # DETECT INTENT BASED ON MESSAGE
-
 def detect_intent(message):
     message = message.lower().strip()
 
@@ -71,7 +115,6 @@ def detect_intent(message):
 
 
 # GENERATE RESPONSE BASED ON MESSAGE AND MEMORY
-
 def generate_response(message, memory):
     name = extract_name(message)
 
@@ -98,7 +141,6 @@ def generate_response(message, memory):
 
 
 # EXTRACT NAME FROM MESSAGE
-
 def extract_name(message):
     pattern = r"my name is ([A-Za-z]+)"
 
@@ -113,18 +155,35 @@ def extract_name(message):
 
 def main():
     memory = load_memory()
+    history = load_history()
 
     print("PyBot: Hello! I'm PyBot.")
     print("PyBot: Type 'exit' to end the conversation.")
-
+    
     while True:
         user_message = input("You: ")
-
         if user_message.lower().strip() == "exit":
             print("PyBot: See you soon!")
             break
 
+        if user_message.lower().strip() == "history":
+            show_history(history)
+            continue                # Skip the rest of the loop and prompt for input again
+
+        history.append({
+            "role": "user",
+            "message": user_message
+        })
+
         response = generate_response(user_message, memory)
+        
+        history.append({
+            "role": "assistant",
+            "message": response
+        })
+
+        save_history(history)
+
         print(f"PyBot: {response}")
 
 
