@@ -1,5 +1,6 @@
-
 import re
+import json
+import os
 
 
 INTENTS = {
@@ -26,10 +27,37 @@ INTENTS = {
 }
 
 
+# HANDLE JSON MEMORY FILE
+
+def load_memory():
+    if not os.path.exists("memory.json"):
+        return {}
+
+    try:
+        with open("memory.json", "r", encoding="utf-8") as file:
+            return json.load(file)
+    except (json.JSONDecodeError, OSError):
+        return {}
+
+
+# CONVERT MEMORY DICTIONARY TO JSON AND SAVE TO FILE
+
+def save_memory(memory):
+    try:
+        with open("memory.json", "w", encoding="utf-8") as file:
+            json.dump(memory, file, indent=4, ensure_ascii=False)   # memory is saved in a human-readable format with proper indentation and without escaping non-ASCII characters
+    except OSError:
+        print("PyBot: Warning: Could not save memory.")
+
+
+# SEARCH FOR PHRASES IN MESSAGES
+
 def contains_phrase(message, phrase):
     pattern = rf"\b{re.escape(phrase)}\b"
     return re.search(pattern, message) is not None
 
+
+# DETECT INTENT BASED ON MESSAGE
 
 def detect_intent(message):
     message = message.lower().strip()
@@ -42,12 +70,14 @@ def detect_intent(message):
     return "unknown"
 
 
+# GENERATE RESPONSE BASED ON MESSAGE AND MEMORY
 
 def generate_response(message, memory):
     name = extract_name(message)
 
     if name:
         memory["name"] = name
+        save_memory(memory)
         return f"Nice to meet you, {name}!"
 
     normalized_message = message.lower().strip()
@@ -67,6 +97,7 @@ def generate_response(message, memory):
 
 
 
+# EXTRACT NAME FROM MESSAGE
 
 def extract_name(message):
     pattern = r"my name is ([A-Za-z]+)"
@@ -81,7 +112,7 @@ def extract_name(message):
 
 
 def main():
-    memory = {}
+    memory = load_memory()
 
     print("PyBot: Hello! I'm PyBot.")
     print("PyBot: Type 'exit' to end the conversation.")
