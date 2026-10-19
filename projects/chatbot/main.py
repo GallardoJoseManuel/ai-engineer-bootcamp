@@ -2,6 +2,7 @@ import re
 import json
 import os
 from datetime import datetime
+from llm_client import generate_llm_response
 
 INTENTS = {
     "greeting": {
@@ -225,7 +226,19 @@ def main():
             "timestamp": timestamp,
         })
 
-        response = generate_response(user_message, memory)
+        normalized_message = user_message.lower().strip()
+
+        if (
+            extract_name(user_message)
+            or contains_phrase(normalized_message, "what is my name")
+        ):
+            response = generate_response(user_message, memory)
+        else:
+            response = generate_llm_response(
+                user_message,
+                history,
+                memory,
+            )
         print(f"PyBot: {response}")
 
         history.append({
