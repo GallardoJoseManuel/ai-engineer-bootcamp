@@ -1,7 +1,7 @@
 import re
 import json
 import os
-
+from datetime import datetime
 
 INTENTS = {
     "greeting": {
@@ -91,7 +91,13 @@ def show_history(history):
         else:
             speaker = "PyBot"
 
-        print(f"{speaker}: {entry['message']}")
+        timestamp = entry.get("timestamp")
+
+        if timestamp:
+            print(f"[{timestamp}] {speaker}: {entry['message']}")
+        else:
+            print(f"{speaker}: {entry['message']}")
+
 
 
 
@@ -172,19 +178,21 @@ def main():
 
         history.append({
             "role": "user",
-            "message": user_message
+            "message": user_message,
+            "timestamp": datetime.now().isoformat(timespec="seconds")
         })
 
         response = generate_response(user_message, memory)
         
         history.append({
             "role": "assistant",
-            "message": response
+            "message": response,
+            "timestamp": datetime.now().isoformat(timespec="seconds")
         })
 
         save_history(history)
 
-        print(f"PyBot: {response}")
+        print(f"PyBot: {response}")     
 
 
 if __name__ == "__main__":
