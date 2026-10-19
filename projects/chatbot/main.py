@@ -76,6 +76,14 @@ def save_history(history):
         print("PyBot: Warning: Could not save conversation history.")
 
 
+# CLEAR CONVERSATION HISTORY
+def clear_history():
+    history = []
+    save_history(history)
+    print("PyBot: Conversation history cleared.")
+    return history
+
+
 
 # DISPLAY CONVERSATION HISTORY
 def show_history(history):
@@ -175,6 +183,11 @@ def main():
         if user_message.lower().strip() == "history":
             show_history(history)
             continue                # Skip the rest of the loop and prompt for input again
+
+        
+        if user_message.lower().strip() == "clear history":
+            history = clear_history()
+            continue
 
         history.append({
             "role": "user",
